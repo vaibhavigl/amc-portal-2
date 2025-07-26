@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String       @id @default(cuid())
+  name             String
+  email            String       @unique
+  password         String
+  role             String       @default("OWNER") // Allowed: "OWNER", "MANAGER"
+  emailPreference  Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  amcContracts     AmcContract[]
+
+  @@map("users")
+}
+
+model AmcContract {
+  id                String   @id @default(cuid())
+  amcType           String
+  make              String
+  model             String
+  serialNumber      String
+  assetNumber       String   @unique
+  warrantyStart     DateTime
+  warrantyEnd       DateTime
+  amcStart          DateTime
+  amcEnd            DateTime
+  location          String
+  vendor            String
+  ownerId           String
+  owner             User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("amc_contracts")
+}

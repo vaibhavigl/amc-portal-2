@@ -18,6 +18,8 @@ interface AuthContextType {
   register: (name: string, email: string, password: string, role?: string, department?: string) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
+  forgotPassword: (email: string) => Promise<void>; 
+  resetPassword: (token: string, password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,6 +86,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error(error.response?.data?.error || 'Registration failed');
     }
   };
+  const forgotPassword = async (email: string) => {
+  try {
+    await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to send reset link');
+  }
+};
+
+const resetPassword = async (token: string, newPassword: string) => {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/auth/reset-password`, {
+      token,
+      password: newPassword,
+    });
+    return res.data;
+  } catch (err: any) {
+    throw new Error(err.response?.data?.error || 'Password reset failed');
+  }
+};
 
   const logout = () => {
     setUser(null);
@@ -105,6 +126,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       register,
       logout,
       updateUser,
+      forgotPassword,
+      resetPassword
     }}>
       {children}
     </AuthContext.Provider>

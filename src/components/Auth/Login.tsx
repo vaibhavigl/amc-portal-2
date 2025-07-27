@@ -11,7 +11,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +90,17 @@ const Login: React.FC = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+            </div>
+            <div className="mt-6 text-left">
+              <p className="text-sm text-gray-600">
+                Forgot your Password{' '}
+                <Link
+                  to="/forgot-password"
+                  className="font-medium text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                >
+                  Reset it here
+                </Link>
+              </p>
             </div>
 
             <button

@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
+import ResetPassword from './components/Auth/ResetPassword';
+import ForgotPassword from './components/Auth/ForgotPassword';
 import Dashboard from './components/Dashboard/Dashboard';
 import ContractList from './components/Contracts/ContractList';
 import ContractForm from './components/Contracts/ContractForm';
@@ -13,21 +15,21 @@ import LoadingSpinner from './components/UI/LoadingSpinner';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return <LoadingSpinner />;
   }
-  
+
   return user ? <>{children}</> : <Navigate to="/login" />;
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return <LoadingSpinner />;
   }
-  
+
   return user ? <Navigate to="/dashboard" /> : <>{children}</>;
 };
 
@@ -47,6 +49,8 @@ function App() {
                 <Register />
               </AuthRoute>
             } />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/" element={
               <ProtectedRoute>
                 <Layout />

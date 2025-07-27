@@ -198,12 +198,12 @@ const ContractList: React.FC = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     {isExpired(contract.amcEnd) && (
-                      <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                      <span className="px-2 py-2 bg-red-100 text-red-800 text-xs font-medium rounded-full">
                         Expired
                       </span>
                     )}
                     {isExpiringSoon(contract.amcEnd) && !isExpired(contract.amcEnd) && (
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                      <span className="px-3 py-2 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full text-center">
                         Expiring Soon
                       </span>
                     )}

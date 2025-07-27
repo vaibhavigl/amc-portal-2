@@ -48,11 +48,21 @@ const ResetPassword = () => {
           </div>
         ) : (
           <>
-            <div className="flex items-center space-x-3 mb-6">
-              <img src={logo} alt="igl-logo" className="w-20 h-20" />
-              <h1 className="text-2xl font-bold gradient-text">IGL AMC System</h1>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Reset Your Password</h2>
+          <div className='flex items-center justify-center mb-6'>
+            <div className="w-50 h-40 flex items-center justify-center overflow-hidden bg-white p-2 rounded-xl">
+                  <img
+                    src={logo}
+                    alt="igl-logo"
+                    className="w-full h-full"
+                  />
+                </div>
+                {/* <div>
+                    <h1 className="text-3xl font-bold gradient-text m-2 text-center">
+                    IGL AMC System
+                  </h1>
+                </div> */}
+             </div>   
+            <h2 className="text-2xl font-bold text-gray-900 mb-2 mt-4">Reset Your Password</h2>
             <p className="text-gray-600 mb-6">Enter a new password to complete the reset process.</p>
 
             {message && (

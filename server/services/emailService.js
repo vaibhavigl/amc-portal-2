@@ -1,6 +1,6 @@
-import nodemailer from 'nodemailer';
-import cron from 'node-cron';
-import { prisma } from '../index.js';
+import nodemailer from "nodemailer";
+import cron from "node-cron";
+import { prisma } from "../index.js";
 
 // Create transporter
 const transporter = nodemailer.createTransport({
@@ -24,7 +24,7 @@ export const sendEmail = async (to, subject, html) => {
     });
     console.log(`Email sent to ${to}`);
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
   }
 };
 
@@ -32,7 +32,11 @@ export const sendEmail = async (to, subject, html) => {
 export const checkExpiringContracts = async () => {
   try {
     const now = new Date();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    const nextMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      now.getDate()
+    );
 
     const expiringContracts = await prisma.amcContract.findMany({
       where: {
@@ -50,39 +54,62 @@ export const checkExpiringContracts = async () => {
       if (contract.owner.emailPreference) {
         const subject = `AMC Renewal Reminder - ${contract.assetNumber}`;
         const html = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #2563eb;">AMC Renewal Reminder</h2>
-            <p>Dear ${contract.owner.name},</p>
-            <p>This is a reminder that your AMC contract is expiring soon:</p>
-            <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="margin: 0 0 10px 0;">Asset Details:</h3>
-              <p><strong>Asset Number:</strong> ${contract.assetNumber}</p>
-              <p><strong>Make & Model:</strong> ${contract.make} ${contract.model}</p>
-              <p><strong>Location:</strong> ${contract.location}</p>
-              <p><strong>AMC End Date:</strong> ${contract.amcEnd.toLocaleDateString()}</p>
-              <p><strong>Vendor:</strong> ${contract.vendor}</p>
-            </div>
-            <p>Please take necessary action to renew the AMC contract before it expires.</p>
-            <p>Best regards,<br>IGL AMC Management System</p>
-          </div>
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);">
+  <h2 style="color: #1d4ed8; font-size: 24px; margin-bottom: 16px;">🔔 AMC Renewal Reminder</h2>
+
+  <p style="font-size: 16px; color: #374151; margin: 0 0 12px 0;">Dear <strong>${
+    contract.owner.name
+  }</strong>,</p>
+
+  <p style="font-size: 15px; color: #4b5563; margin: 0 0 16px 0;">This is a friendly reminder that your AMC contract is nearing its expiration:</p>
+
+  <div style="background-color: #f9fafb; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 20px;">
+    <h3 style="margin: 0 0 12px 0; color: #111827; font-size: 18px;">📋 Asset Details:</h3>
+    <p style="margin: 6px 0;"><strong>Asset Number:</strong> ${
+      contract.assetNumber
+    }</p>
+    <p style="margin: 6px 0;"><strong>Make & Model:</strong> ${contract.make} ${
+          contract.model
+        }</p>
+    <p style="margin: 6px 0;"><strong>Location:</strong> ${
+      contract.location
+    }</p>
+    <p style="margin: 6px 0;"><strong>AMC End Date:</strong> ${contract.amcEnd.toLocaleDateString()}</p>
+    <p style="margin: 6px 0;"><strong>Vendor:</strong> ${contract.vendor}</p>
+  </div>
+
+  <p style="font-size: 15px; color: #374151; margin-bottom: 20px;">
+    Please take the necessary steps to renew your AMC contract before the expiration date.
+  </p>
+
+  <p style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">Best regards,</p>
+  <p style="font-size: 14px; font-weight: bold; color: #1f2937;">IGL AMC Management System</p>
+
+  <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
+
+  <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+    &copy; ${new Date().getFullYear()} IGL AMC System. All rights reserved.
+  </p>
+</div>
+
         `;
-        
+
         await sendEmail(contract.owner.email, subject, html);
       }
     }
 
     console.log(`Processed ${expiringContracts.length} expiring contracts`);
   } catch (error) {
-    console.error('Error checking expiring contracts:', error);
+    console.error("Error checking expiring contracts:", error);
   }
 };
 
 // Start email scheduler (runs every Monday at 9 AM)
 export const startEmailScheduler = () => {
-  cron.schedule('0 9 * * 1', () => {
-    console.log('Running weekly AMC reminder check...');
+  cron.schedule("0 9 * * 1", () => {
+    console.log("Running weekly AMC reminder check...");
     checkExpiringContracts();
   });
-  
-  console.log('Email scheduler started - runs every Monday at 9 AM');
+
+  console.log("Email scheduler started - runs every Monday at 9 AM");
 };

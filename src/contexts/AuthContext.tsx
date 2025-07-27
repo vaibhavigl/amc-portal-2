@@ -5,8 +5,9 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'OWNER' | 'MANAGER';
+  role: 'OWNER' | 'MANAGER'| 'ADMIN';
   emailPreference: boolean;
+  department?: string;
 }
 
 interface AuthContextType {
@@ -14,7 +15,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role?: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role?: string, department?: string) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
 }
@@ -64,13 +65,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (name: string, email: string, password: string, role: string = 'OWNER') => {
+  const register = async (name: string, email: string, password: string, role: string = 'OWNER', department: string = 'IT') => {
     try {
       const response = await axios.post(`${API_BASE_URL}/auth/register`, {
         name,
         email,
         password,
         role,
+        department,
       });
       
       const { user, token } = response.data;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Mail, Shield, Calendar, FileText } from 'lucide-react';
+import { Users, Mail, Shield, Calendar, FileText, Building, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../UI/LoadingSpinner';
@@ -8,7 +8,8 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'OWNER' | 'MANAGER';
+  role: 'OWNER' | 'MANAGER' | 'ADMIN';
+  department: string;
   emailPreference: boolean;
   createdAt: string;
   _count: {
@@ -20,6 +21,7 @@ const UserList: React.FC = () => {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -36,7 +38,30 @@ const UserList: React.FC = () => {
     }
   };
 
-  if (currentUser?.role !== 'MANAGER') {
+  const handleEditUser = async (userData: any) => {
+    try {
+      const response = await axios.put(`http://localhost:3001/api/users/${editingUser?.id}`, userData);
+      setUsers(users.map(user => user.id === editingUser?.id ? response.data : user));
+      setEditingUser(null);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('Failed to update user');
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        await axios.delete(`http://localhost:3001/api/users/${userId}`);
+        setUsers(users.filter(user => user.id !== userId));
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Failed to delete user');
+      }
+    }
+  };
+
+  if (!['MANAGER', 'ADMIN'].includes(currentUser?.role || '')) {
     return (
       <div className="text-center py-12">
         <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -91,6 +116,22 @@ const UserList: React.FC = () => {
                       <p className="text-gray-600 text-sm">{user.email}</p>
                     </div>
                   </div>
+                  {currentUser?.role === 'ADMIN' && user.id !== currentUser.id && (
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setEditingUser(user)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-3">
@@ -100,11 +141,23 @@ const UserList: React.FC = () => {
                       <span className="text-sm text-gray-600">Role</span>
                     </div>
                     <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      user.role === 'MANAGER' 
-                        ? 'bg-purple-100 text-purple-800' 
-                        : 'bg-blue-100 text-blue-800'
+                      user.role === 'ADMIN' 
+                        ? 'bg-red-100 text-red-800'
+                        : user.role === 'MANAGER' 
+                          ? 'bg-purple-100 text-purple-800' 
+                          : 'bg-blue-100 text-blue-800'
                     }`}>
                       {user.role.toLowerCase()}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Building className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm text-gray-600">Department</span>
+                    </div>
+                    <span className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                      {user.department === 'IT' ? 'ERP & IT' : user.department}
                     </span>
                   </div>
 
@@ -159,6 +212,90 @@ const UserList: React.FC = () => {
         </div>
       )}
 
+      {/* Edit User Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit User</h3>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              handleEditUser({
+                name: formData.get('name'),
+                role: formData.get('role'),
+                department: formData.get('department'),
+                emailPreference: formData.get('emailPreference') === 'on'
+              });
+            }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    defaultValue={editingUser.name}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                  <select
+                    name="role"
+                    defaultValue={editingUser.role}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="OWNER">Owner</option>
+                    <option value="MANAGER">Manager</option>
+                    <option value="ADMIN">Admin</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                  <select
+                    name="department"
+                    defaultValue={editingUser.department}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="IT">ERP & IT</option>
+                    <option value="CNG">CNG</option>
+                    <option value="PNG">PNG</option>
+                    <option value="HR">HR</option>
+                    <option value="FINANCE">Finance</option>
+                    <option value="OPERATIONS">Operations</option>
+                    <option value="MAINTENANCE">Maintenance</option>
+                  </select>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="emailPreference"
+                    defaultChecked={editingUser.emailPreference}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label className="ml-2 text-sm text-gray-700">Email Notifications</label>
+                </div>
+              </div>
+              <div className="flex items-center justify-end space-x-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setEditingUser(null)}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Summary Card */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6">
         <div className="flex items-start space-x-4">
@@ -175,6 +312,12 @@ const UserList: React.FC = () => {
                 <span className="font-medium text-gray-900 ml-2">{users.length}</span>
               </div>
               <div>
+                <span className="text-gray-600">Admins:</span>
+                <span className="font-medium text-gray-900 ml-2">
+                  {users.filter(u => u.role === 'ADMIN').length}
+                </span>
+              </div>
+              <div>
                 <span className="text-gray-600">Managers:</span>
                 <span className="font-medium text-gray-900 ml-2">
                   {users.filter(u => u.role === 'MANAGER').length}
@@ -184,12 +327,6 @@ const UserList: React.FC = () => {
                 <span className="text-gray-600">Owners:</span>
                 <span className="font-medium text-gray-900 ml-2">
                   {users.filter(u => u.role === 'OWNER').length}
-                </span>
-              </div>
-              <div>
-                <span className="text-gray-600">Email Enabled:</span>
-                <span className="font-medium text-gray-900 ml-2">
-                  {users.filter(u => u.emailPreference).length}
                 </span>
               </div>
             </div>

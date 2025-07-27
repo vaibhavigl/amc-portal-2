@@ -4,8 +4,8 @@ import {
   LayoutDashboard, 
   FileText, 
   Users, 
-  User, 
-  
+  User
+
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import logo from '../../../assets/igl-logo.png';
@@ -16,7 +16,7 @@ const Sidebar: React.FC = () => {
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/contracts', icon: FileText, label: 'AMC Contracts' },
-    ...(user?.role === 'MANAGER' ? [{ to: '/users', icon: Users, label: 'Users' }] : []),
+    ...(['MANAGER', 'ADMIN'].includes(user?.role || '') ? [{ to: '/users', icon: Users, label: 'Users' }] : []),
     { to: '/profile', icon: User, label: 'Profile' },
   ];
 
@@ -24,7 +24,7 @@ const Sidebar: React.FC = () => {
     <div className="bg-white w-64 min-h-screen shadow-lg border-r border-gray-200">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-20 h-20  rounded-lg flex items-center justify-center">
+          <div className="w-24 h-20  rounded-lg flex items-center justify-center">
             <img src={logo} alt="igl-logo" className="w-20 h-20 text-white" />
           </div>
           <div>

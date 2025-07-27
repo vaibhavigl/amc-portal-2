@@ -9,7 +9,7 @@ const router = express.Router();
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role = 'OWNER' } = req.body;
+    const { name, email, password, role = 'OWNER', department = 'IT' } = req.body;
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -29,13 +29,15 @@ router.post('/register', async (req, res) => {
         name,
         email,
         password: hashedPassword,
-        role
+        role,
+        department,
       },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
+        department: true,
         emailPreference: true
       }
     });

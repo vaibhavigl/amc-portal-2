@@ -4,14 +4,14 @@ import { UserPlus, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import logo from '../../../assets/igl-logo.png';
-
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'OWNER'
+    role: 'OWNER',
+    department: 'IT'
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -38,7 +38,7 @@ const Register: React.FC = () => {
     }
 
     try {
-      await register(formData.name, formData.email, formData.password, formData.role);
+      await register(formData.name, formData.email, formData.password, formData.role, formData.department);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -114,6 +114,28 @@ const Register: React.FC = () => {
               >
                 <option value="OWNER">Asset Owner</option>
                 <option value="MANAGER">Asset Manager</option>
+                
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
+                Department
+              </label>
+              <select
+                id="department"
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              >
+                <option value="IT">ERP & IT</option>
+                <option value="CNG">CNG</option>
+                <option value="PNG">PNG</option>
+                <option value="HR">HR</option>
+                <option value="FINANCE">Finance</option>
+                <option value="OPERATIONS">Operations</option>
+                <option value="MAINTENANCE">Maintenance</option>
               </select>
             </div>
 

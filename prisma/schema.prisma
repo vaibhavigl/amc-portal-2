@@ -12,7 +12,8 @@ model User {
   name             String
   email            String       @unique
   password         String
-  role             String       @default("OWNER") // Allowed: "OWNER", "MANAGER"
+  role             String       
+  department       String      
   emailPreference  Boolean      @default(true)
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
@@ -22,22 +23,24 @@ model User {
 }
 
 model AmcContract {
-  id                String   @id @default(cuid())
+  id                String     @id @default(cuid())
   amcType           String
   make              String
   model             String
   serialNumber      String
-  assetNumber       String   @unique
+  assetNumber       String     @unique
   warrantyStart     DateTime
   warrantyEnd       DateTime
   amcStart          DateTime
   amcEnd            DateTime
   location          String
   vendor            String
+  department        String     
   ownerId           String
-  owner             User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  owner             User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   @@map("amc_contracts")
 }
+

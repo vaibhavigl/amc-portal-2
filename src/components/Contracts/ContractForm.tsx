@@ -17,6 +17,7 @@ interface FormData {
   amcEnd: string;
   location: string;
   vendor: string;
+  department: string;
   ownerId?: string;
 }
 
@@ -38,6 +39,7 @@ const ContractForm: React.FC = () => {
     amcEnd: '',
     location: '',
     vendor: '',
+    department: user?.department || 'IT',
     ownerId: user?.id,
   });
 
@@ -49,7 +51,7 @@ const ContractForm: React.FC = () => {
     if (isEditing) {
       fetchContract();
     }
-    if (user?.role === 'MANAGER') {
+    if (['MANAGER', 'ADMIN'].includes(user?.role || '')) {
       fetchUsers();
     }
   }, [id, isEditing, user?.role]);
@@ -72,6 +74,7 @@ const ContractForm: React.FC = () => {
         amcEnd: contract.amcEnd.split('T')[0],
         location: contract.location,
         vendor: contract.vendor,
+        department: contract.department,
         ownerId: contract.ownerId,
       });
     } catch (error) {
@@ -85,7 +88,13 @@ const ContractForm: React.FC = () => {
   const fetchUsers = async () => {
     try {
       const response = await axios.get('http://localhost:3001/api/users');
-      setUsers(response.data);
+      // Filter users based on current user's role
+      let filteredUsers = response.data;
+      if (user?.role === 'MANAGER') {
+        // Managers can only assign to users in their department
+        filteredUsers = response.data.filter((u: any) => u.department === user.department);
+      }
+      setUsers(filteredUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
@@ -274,7 +283,35 @@ const ContractForm: React.FC = () => {
               />
             </div>
 
-            {user?.role === 'MANAGER' && (
+            <div>
+              <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
+                Department *
+              </label>
+              <select
+                id="department"
+                name="department"
+                required
+                value={formData.department}
+                onChange={handleChange}
+                disabled={user?.role === 'OWNER'}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+              >
+                <option value="IT">ERP & IT</option>
+                <option value="CNG">CNG</option>
+                <option value="PNG">PNG</option>
+                <option value="HR">HR</option>
+                <option value="FINANCE">Finance</option>
+                <option value="OPERATIONS">Operations</option>
+                <option value="MAINTENANCE">Maintenance</option>
+              </select>
+              {user?.role === 'OWNER' && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Department is set based on your user profile.
+                </p>
+              )}
+            </div>
+
+            {['MANAGER', 'ADMIN'].includes(user?.role || '') && (
               <div>
                 <label htmlFor="ownerId" className="block text-sm font-medium text-gray-700 mb-2">
                   Asset Owner *
@@ -290,7 +327,7 @@ const ContractForm: React.FC = () => {
                   <option value="">Select Owner</option>
                   {users.map((user) => (
                     <option key={user.id} value={user.id}>
-                      {user.name} ({user.email})
+                      {user.name} ({user.email}) - {user.department === 'IT' ? 'ERP & IT' : user.department}
                     </option>
                   ))}
                 </select>

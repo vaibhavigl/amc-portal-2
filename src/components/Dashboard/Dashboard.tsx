@@ -147,7 +147,7 @@ const Dashboard: React.FC = () => {
                 <p className="text-sm text-gray-600">Manage existing contracts</p>
               </div>
             </a>
-            {user?.role === 'MANAGER' && (
+            {['MANAGER', 'ADMIN'].includes(user?.role || '') && (
               <a
                 href="/users"
                 className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group"

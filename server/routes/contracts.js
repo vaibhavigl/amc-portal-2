@@ -7,9 +7,16 @@ const router = express.Router();
 // Get contracts
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const whereClause = req.user.role === 'MANAGER' 
-      ? {} 
-      : { ownerId: req.user.id };
+    let whereClause = {};
+    
+    if (req.user.role === 'OWNER') {
+      // Owners can only see their own contracts
+      whereClause = { ownerId: req.user.id };
+    } else if (req.user.role === 'MANAGER') {
+      // Managers can see contracts from their department only
+      whereClause = { department: req.user.department };
+    }
+    // Admins can see all contracts (no where clause)
 
     const contracts = await prisma.amcContract.findMany({
       where: whereClause,
@@ -44,8 +51,10 @@ router.get('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Contract not found' });
     }
 
-    // Check ownership for non-managers
-    if (req.user.role !== 'MANAGER' && contract.ownerId !== req.user.id) {
+    // Check access permissions
+    if (req.user.role === 'OWNER' && contract.ownerId !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    } else if (req.user.role === 'MANAGER' && contract.department !== req.user.department) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -59,11 +68,31 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Create contract
 router.post('/', authenticateToken, async (req, res) => {
   try {
+    // Set owner and department based on user role
+    let ownerId = req.user.id;
+    let department = req.user.department;
+    
+    if (req.user.role === 'MANAGER' && req.body.ownerId) {
+      // Managers can assign contracts to users in their department
+      const targetUser = await prisma.user.findUnique({
+        where: { id: req.body.ownerId }
+      });
+      
+      if (!targetUser || targetUser.department !== req.user.department) {
+        return res.status(403).json({ error: 'Cannot assign contract to user from different department' });
+      }
+      
+      ownerId = req.body.ownerId;
+    } else if (req.user.role === 'ADMIN') {
+      // Admins can assign to anyone and set any department
+      if (req.body.ownerId) ownerId = req.body.ownerId;
+      if (req.body.department) department = req.body.department;
+    }
+    
     const contractData = {
       ...req.body,
-      ownerId: req.user.role === 'MANAGER' && req.body.ownerId 
-        ? req.body.ownerId 
-        : req.user.id,
+      ownerId,
+      department,
       warrantyStart: new Date(req.body.warrantyStart),
       warrantyEnd: new Date(req.body.warrantyEnd),
       amcStart: new Date(req.body.amcStart),
@@ -101,8 +130,10 @@ router.put('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Contract not found' });
     }
 
-    // Check ownership for non-managers
-    if (req.user.role !== 'MANAGER' && contract.ownerId !== req.user.id) {
+    // Check access permissions
+    if (req.user.role === 'OWNER' && contract.ownerId !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    } else if (req.user.role === 'MANAGER' && contract.department !== req.user.department) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -142,8 +173,10 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Contract not found' });
     }
 
-    // Check ownership for non-managers
-    if (req.user.role !== 'MANAGER' && contract.ownerId !== req.user.id) {
+    // Check access permissions
+    if (req.user.role === 'OWNER' && contract.ownerId !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    } else if (req.user.role === 'MANAGER' && contract.department !== req.user.department) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -161,35 +194,56 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 // Get dashboard stats
 router.get('/stats/dashboard', authenticateToken, async (req, res) => {
   try {
-    const whereClause = req.user.role === 'MANAGER' 
-      ? {} 
-      : { ownerId: req.user.id };
+    let whereClause = {};
+    
+    if (req.user.role === 'OWNER') {
+      whereClause = { ownerId: req.user.id };
+    } else if (req.user.role === 'MANAGER') {
+      whereClause = { department: req.user.department };
+    }
+    // Admins see all contracts
 
-    const now = new Date();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+const now = new Date();
+const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
 
-    const [totalContracts, expiringContracts, activeContracts] = await Promise.all([
-      prisma.amcContract.count({ where: whereClause }),
-      prisma.amcContract.count({
-        where: {
-          ...whereClause,
-          amcEnd: { lte: nextMonth }
-        }
-      }),
-      prisma.amcContract.count({
-        where: {
-          ...whereClause,
-          amcEnd: { gte: now }
-        }
-      })
-    ]);
+const [totalContracts, expiredContracts, expiringContracts, activeContracts] = await Promise.all([
+  prisma.amcContract.count({ where: whereClause }),
 
-    res.json({
-      totalContracts,
-      activeContracts,
-      expiredContracts: totalContracts - activeContracts,
-      expiringContracts
-    });
+  prisma.amcContract.count({
+    where: {
+      ...whereClause,
+      amcEnd: { lt: now }
+    }
+  }),
+
+  prisma.amcContract.count({
+    where: {
+      ...whereClause,
+      amcEnd: {
+        gte: now,
+        lte: nextMonth
+      }
+    }
+  }),
+
+  prisma.amcContract.count({
+    where: {
+      ...whereClause,
+      amcEnd: {
+        gte: now
+      }
+    }
+  })
+]);
+
+res.json({
+  totalContracts,
+  expiredContracts,
+  expiringContracts,
+  activeContracts
+});
+
+
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
     res.status(500).json({ error: 'Failed to fetch dashboard stats' });

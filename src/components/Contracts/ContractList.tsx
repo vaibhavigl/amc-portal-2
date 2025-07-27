@@ -28,6 +28,7 @@ interface Contract {
   amcEnd: string;
   location: string;
   vendor: string;
+  department: string;
   owner: {
     id: string;
     name: string;
@@ -229,7 +230,11 @@ const ContractList: React.FC = () => {
                     <User className="w-4 h-4" />
                     <span className="truncate">{contract.vendor}</span>
                   </div>
-                  {user?.role === 'MANAGER' && (
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <Building className="w-4 h-4" />
+                    <span className="truncate">{contract.department === 'IT' ? 'ERP & IT' : contract.department}</span>
+                  </div>
+                  {['MANAGER', 'ADMIN'].includes(user?.role || '') && (
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <User className="w-4 h-4" />
                       <span className="truncate">Owner: {contract.owner.name}</span>

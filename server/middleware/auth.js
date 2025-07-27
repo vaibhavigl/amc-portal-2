@@ -13,7 +13,7 @@ export const authenticateToken = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, email: true, name: true, role: true }
+      select: { id: true, email: true, name: true, role: true, department: true , emailPreference: true }
     });
 
     if (!user) {
@@ -29,7 +29,11 @@ export const authenticateToken = async (req, res, next) => {
 
 export const requireRole = (role) => {
   return (req, res, next) => {
-    if (req.user.role !== role) {
+    if (Array.isArray(role)) {
+      if (!role.includes(req.user.role)) {
+        return res.status(403).json({ error: 'Insufficient permissions' });
+      }
+    } else if (req.user.role !== role) {
       return res.status(403).json({ error: 'Insufficient permissions' });
     }
     next();

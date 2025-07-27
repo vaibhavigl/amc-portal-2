@@ -4,13 +4,14 @@ import { LogIn, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import logo from '../../../assets/igl-logo.png';
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -122,6 +123,7 @@ const Login: React.FC = () => {
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-xs text-gray-500 text-center">
               Demo Credentials:<br />
+              Admin: admin@igl.com / password123<br />
               Manager: manager@igl.com / password123<br />
               Owner: owner@igl.com / password123
             </p>

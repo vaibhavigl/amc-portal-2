@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mail, Shield, Bell, Save } from 'lucide-react';
+import { User, Mail, Shield, Bell, Save, Building } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../UI/LoadingSpinner';
@@ -8,7 +8,8 @@ const Profile: React.FC = () => {
   const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState({
     name: user?.name || '',
-    emailPreference: user?.emailPreference || false,
+    department: user?.department,
+    emailPreference: user?.emailPreference ?? false,
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
@@ -19,6 +20,13 @@ const Profile: React.FC = () => {
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
     });
   };
 
@@ -62,6 +70,10 @@ const Profile: React.FC = () => {
                 <Shield className="w-4 h-4 text-blue-600" />
                 <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
                   {user?.role?.toLowerCase()}
+                </span>
+                <Building className="w-4 h-4 text-green-600" />
+                <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                  {user?.department === 'IT' ? 'ERP & IT' : user?.department}
                 </span>
               </div>
             </div>
@@ -123,6 +135,35 @@ const Profile: React.FC = () => {
                 </p>
               </div>
 
+              {user?.role === 'ADMIN' && (
+                <div>
+                  <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
+                    Department
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="department"
+                      name="department"
+                      value={formData.department}
+                      onChange={handleSelectChange}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="IT">ERP & IT</option>
+                      <option value="CNG">CNG</option>
+                      <option value="PNG">PNG</option>
+                      <option value="HR">HR</option>
+                      <option value="FINANCE">Finance</option>
+                      <option value="OPERATIONS">Operations</option>
+                      <option value="MAINTENANCE">Maintenance</option>
+                    </select>
+                    <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Only administrators can change their department.
+                  </p>
+                </div>
+              )}
+            
               <div>
                 <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
                   Role
@@ -195,7 +236,7 @@ const Profile: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <div className="text-2xl font-bold text-blue-600">
-              {user?.role === 'MANAGER' ? 'All' : 'Your'}
+              {user?.role === 'ADMIN' ? 'All' : user?.role === 'MANAGER' ? 'Department' : 'Your'}
             </div>
             <div className="text-sm text-gray-600">Contract Access</div>
           </div>

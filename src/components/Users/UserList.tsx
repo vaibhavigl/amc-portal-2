@@ -40,8 +40,7 @@ const UserList: React.FC = () => {
 
   const handleEditUser = async (userData: any) => {
     try {
-      const response = await axios.put(`http://localhost:3001/api/users/${editingUser?.id}`, userData);
-      //setUsers(users.map(user => user.id === editingUser?.id ? response.data : user));
+      await axios.put(`http://localhost:3001/api/users/${editingUser?.id}`, userData);
       await fetchUsers(); // Refresh the user list
       setEditingUser(null);
     } catch (error) {
@@ -151,7 +150,7 @@ const UserList: React.FC = () => {
                       {user.role.toLowerCase()}
                     </span>
                   </div>
-
+                  {user?.role !== "ADMIN" && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Building className="w-4 h-4 text-gray-400" />
@@ -161,6 +160,7 @@ const UserList: React.FC = () => {
                       {user.department === 'IT' ? 'ERP & IT' : user.department}
                     </span>
                   </div>
+                  )}
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">

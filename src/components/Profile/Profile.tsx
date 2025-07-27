@@ -8,6 +8,7 @@ const Profile: React.FC = () => {
   const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState({
     name: user?.name || '',
+    email: user?.email || '',
     department: user?.department,
     emailPreference: user?.emailPreference ?? false,
   });
@@ -71,10 +72,14 @@ const Profile: React.FC = () => {
                 <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
                   {user?.role?.toLowerCase()}
                 </span>
-                <Building className="w-4 h-4 text-green-600" />
-                <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-                  {user?.department === 'IT' ? 'ERP & IT' : user?.department}
-                </span>
+                {user?.role !== "ADMIN" && (
+                  <>
+                    <Building className="w-4 h-4 text-green-600" />
+                    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                      {user?.department === 'IT' ? 'ERP & IT' : user?.department}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -96,7 +101,7 @@ const Profile: React.FC = () => {
 
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Information</h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -124,18 +129,24 @@ const Profile: React.FC = () => {
                   <input
                     type="email"
                     id="email"
-                    value={user?.email || ''}
-                    disabled
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                    name="email"
+                    value={formData.email}
+                    disabled={user?.role !== "ADMIN"}
+                    onChange={handleChange}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg 
+        ${user?.role !== "ADMIN" ? "border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed" : "border-gray-400 bg-white text-black"}`}
                   />
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Email address cannot be changed. Contact your administrator if needed.
-                </p>
+                {user?.role !== "ADMIN" && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Email address cannot be changed. Contact your administrator if needed.
+                  </p>
+                )}
               </div>
 
-              {user?.role === 'ADMIN' && (
+
+              {user?.role !== 'ADMIN' && (
                 <div>
                   <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
                     Department
@@ -144,6 +155,7 @@ const Profile: React.FC = () => {
                     <select
                       id="department"
                       name="department"
+                      disabled
                       value={formData.department}
                       onChange={handleSelectChange}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -163,7 +175,7 @@ const Profile: React.FC = () => {
                   </p>
                 </div>
               )}
-            
+
               <div>
                 <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
                   Role
@@ -172,22 +184,29 @@ const Profile: React.FC = () => {
                   <input
                     type="text"
                     id="role"
+                    name="role"
                     value={user?.role?.toLowerCase() || ''}
-                    disabled
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                    disabled={user?.role !== "ADMIN"}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg ${user?.role !== "ADMIN"
+                        ? "border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed"
+                        : "border-gray-400 bg-white text-black"
+                      }`}
                   />
                   <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Your role is assigned by the system administrator.
-                </p>
+
+                {user?.role !== "ADMIN" && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Your role is assigned by the system administrator.
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
           <div className="border-t border-gray-200 pt-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h3>
-            
+
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <input

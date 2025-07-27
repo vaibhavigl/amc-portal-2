@@ -41,7 +41,8 @@ const UserList: React.FC = () => {
   const handleEditUser = async (userData: any) => {
     try {
       const response = await axios.put(`http://localhost:3001/api/users/${editingUser?.id}`, userData);
-      setUsers(users.map(user => user.id === editingUser?.id ? response.data : user));
+      //setUsers(users.map(user => user.id === editingUser?.id ? response.data : user));
+      await fetchUsers(); // Refresh the user list
       setEditingUser(null);
     } catch (error) {
       console.error('Error updating user:', error);
@@ -181,7 +182,7 @@ const UserList: React.FC = () => {
                       <span className="text-sm text-gray-600">Contracts</span>
                     </div>
                     <span className="text-sm font-medium text-gray-900">
-                      {user._count.amcContracts}
+                      {user._count.amcContracts ?? 0}
                     </span>
                   </div>
 

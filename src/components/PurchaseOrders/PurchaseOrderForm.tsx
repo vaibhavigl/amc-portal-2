@@ -179,7 +179,7 @@ const PurchaseOrderForm: React.FC = () => {
                 value={formData.vendorName}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="e.g., ABC Technologies Pvt Ltd"
+                placeholder="e.g., ABC Technologies Pvt Ltd address 123, City, State, ZIP"
               />
             </div>
 
@@ -195,7 +195,7 @@ const PurchaseOrderForm: React.FC = () => {
                 value={formData.vendorInfo}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter vendor contact details, address, and other relevant information"
+                placeholder="Enter the subject and other relevant information"
               />
             </div>
 

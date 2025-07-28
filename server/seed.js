@@ -15,8 +15,9 @@ async function main() {
       email: 'admin@igl.com',
       password: hashedPassword,
       role: 'ADMIN',
-      department: '',
+      department: 'IT',
       emailPreference: true,
+      poEmailPreference: true,
     },
   });
 
@@ -30,6 +31,7 @@ async function main() {
       role: 'MANAGER',
       department: 'IT',
       emailPreference: true,
+      poEmailPreference: true,
     },
   });
 
@@ -43,6 +45,7 @@ async function main() {
       role: 'MANAGER',
       department: 'CNG',
       emailPreference: true,
+      poEmailPreference: true,
     },
   });
 
@@ -56,6 +59,7 @@ async function main() {
       role: 'OWNER',
       department: 'IT',
       emailPreference: true,
+      poEmailPreference: true,
     },
   });
 
@@ -69,6 +73,7 @@ async function main() {
       role: 'OWNER',
       department: 'CNG',
       emailPreference: false,
+      poEmailPreference: true,
     },
   });
 

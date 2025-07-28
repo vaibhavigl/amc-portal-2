@@ -15,9 +15,11 @@ model User {
   role             String       
   department       String      
   emailPreference  Boolean      @default(true)
+  poEmailPreference Boolean     @default(true)
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   amcContracts     AmcContract[]
+  purchaseOrders   PurchaseOrder[]
   resetToken       String?
   resetTokenExpiry DateTime?
 
@@ -45,4 +47,23 @@ model AmcContract {
 
   @@map("amc_contracts")
 }
+
+model PurchaseOrder {
+  id                String     @id @default(cuid())
+  vendorCode        String
+  vendorName        String
+  vendorInfo        String
+  poNumber          String     @unique
+  poDate            DateTime
+  validityStart     DateTime
+  validityEnd       DateTime
+  department        String     
+  ownerId           String
+  owner             User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@map("purchase_orders")
+}
+
 

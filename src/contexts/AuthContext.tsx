@@ -7,6 +7,7 @@ interface User {
   email: string;
   role: 'OWNER' | 'MANAGER'| 'ADMIN';
   emailPreference: boolean;
+  poEmailPreference: boolean;
   department?: string;
 }
 
@@ -115,6 +116,7 @@ const resetPassword = async (token: string, newPassword: string) => {
 
   const updateUser = (userData: Partial<User>) => {
     setUser(prev => prev ? { ...prev, ...userData } : null);
+    
   };
 
   return (

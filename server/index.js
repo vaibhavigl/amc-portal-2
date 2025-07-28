@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import contractRoutes from './routes/contracts.js';
+import purchaseOrderRoutes from './routes/purchaseOrders.js';
 import { startEmailScheduler } from './services/emailService.js';
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/contracts', contractRoutes);
+app.use('/api/purchase-orders', purchaseOrderRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

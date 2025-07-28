@@ -49,6 +49,7 @@ router.post("/register", async (req, res) => {
         role: true,
         department: true,
         emailPreference: true,
+        poEmailPreference: true,
       },
     });
 
@@ -315,8 +316,30 @@ router.post(
 );
 
 // Get current user
-router.get("/me", authenticateToken, (req, res) => {
-  res.json({ user: req.user });
+router.get("/me", authenticateToken, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        department: true,
+        emailPreference: true,
+        poEmailPreference: true, // ✅ Include this
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ user });
+  } catch (error) {
+    console.error("Error fetching user in /me:", error);
+    res.status(500).json({ error: "Failed to fetch user profile" });
+  }
 });
 
 export default router;

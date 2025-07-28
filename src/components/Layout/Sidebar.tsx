@@ -3,7 +3,8 @@ import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FileText, 
-  Users, 
+  Users,
+  ShoppingCart,
   User
 
 } from 'lucide-react';
@@ -16,6 +17,7 @@ const Sidebar: React.FC = () => {
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/contracts', icon: FileText, label: 'AMC Contracts' },
+    { to: '/purchase-orders', icon: ShoppingCart, label: 'Purchase Orders' },
     ...(['MANAGER', 'ADMIN'].includes(user?.role || '') ? [{ to: '/users', icon: Users, label: 'Users' }] : []),
     { to: '/profile', icon: User, label: 'Profile' },
   ];

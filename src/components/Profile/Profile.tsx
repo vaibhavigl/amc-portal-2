@@ -11,6 +11,7 @@ const Profile: React.FC = () => {
     email: user?.email || '',
     department: user?.department,
     emailPreference: user?.emailPreference ?? false,
+    poEmailPreference: user?.poEmailPreference ?? false
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
@@ -227,9 +228,29 @@ const Profile: React.FC = () => {
                 </div>
                 <Bell className="w-5 h-5 text-gray-400" />
               </div>
+               <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="poEmailPreference"
+                  name="poEmailPreference"
+                  checked={formData.poEmailPreference}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <div className="flex-1">
+                  <label htmlFor="poEmailPreference" className="text-sm font-medium text-gray-900">
+                    Receive Purchase Order Reminder Emails
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Get email notifications when your Purchase Orders are expiring within 6 months (sent every Monday).
+                  </p>
+                </div>
+                <Bell className="w-5 h-5 text-gray-400" />
+              </div>
             </div>
           </div>
 
+          
           <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
             <button
               type="submit"

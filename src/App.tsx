@@ -12,6 +12,8 @@ import Profile from './components/Profile/Profile';
 import UserList from './components/Users/UserList';
 import Layout from './components/Layout/Layout';
 import LoadingSpinner from './components/UI/LoadingSpinner';
+import PurchaseOrderList from './components/PurchaseOrders/PurchaseOrderList';
+import PurchaseOrderForm from './components/PurchaseOrders/PurchaseOrderForm';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -61,6 +63,9 @@ function App() {
               <Route path="contracts" element={<ContractList />} />
               <Route path="contracts/new" element={<ContractForm />} />
               <Route path="contracts/:id/edit" element={<ContractForm />} />
+              <Route path="purchase-orders" element={<PurchaseOrderList />} />
+              <Route path="purchase-orders/new" element={<PurchaseOrderForm />} />
+              <Route path="purchase-orders/:id/edit" element={<PurchaseOrderForm />} />
               <Route path="profile" element={<Profile />} />
               <Route path="users" element={<UserList />} />
             </Route>

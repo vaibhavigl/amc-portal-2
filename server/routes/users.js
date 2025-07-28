@@ -23,6 +23,7 @@ router.get('/', authenticateToken, requireRole(['MANAGER', 'ADMIN']), async (req
         role: true,
         department: true,
         emailPreference: true,
+        poEmailPreference: true,
         createdAt: true,
         _count: {
           select: { amcContracts: true }
@@ -39,9 +40,9 @@ router.get('/', authenticateToken, requireRole(['MANAGER', 'ADMIN']), async (req
 // Update user profile
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
-    const { name, emailPreference, department } = req.body;
+    const { name, emailPreference, department , poEmailPreference} = req.body;
     
-    const updateData = { name, emailPreference };
+    const updateData = { name, emailPreference ,poEmailPreference};
     
     // Only admins can change department
     if (req.user.role === 'ADMIN' && department) {
@@ -57,7 +58,8 @@ router.put('/profile', authenticateToken, async (req, res) => {
         email: true,
         role: true,
         department: true,
-        emailPreference: true
+        emailPreference: true,
+        poEmailPreference: true,
       }
     });
     

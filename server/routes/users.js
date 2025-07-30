@@ -26,7 +26,7 @@ router.get('/', authenticateToken, requireRole(['MANAGER', 'ADMIN']), async (req
         poEmailPreference: true,
         createdAt: true,
         _count: {
-          select: { amcContracts: true }
+          select: { amcContracts: true , purchaseOrders: true }
         }
       }
     });

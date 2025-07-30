@@ -300,6 +300,9 @@ const PurchaseOrderList: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vendor</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Validity</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
+                  {['MANAGER', 'ADMIN'].includes(user?.role || '') && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
+                  )}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
@@ -315,6 +318,16 @@ const PurchaseOrderList: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {po.department === 'IT' ? 'ERP & IT' : po.department}
                     </td>
+                    {['MANAGER', 'ADMIN'].includes(user?.role || '') && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <div className="text-sm text-gray-900">
+                          {po.owner.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {po.owner.email}
+                        </div>
+                    </td>
+                    )}
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {isExpired(po.validityEnd) ? (
                         <span className="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">Expired</span>

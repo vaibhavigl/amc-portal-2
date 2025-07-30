@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Mail, Shield, Calendar, FileText, Building, Edit, Trash2 } from 'lucide-react';
+import { Users, Mail, Shield, Calendar,Search,Filter, FileText, Building, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
 import LoadingSpinner from '../UI/LoadingSpinner';
@@ -14,6 +14,7 @@ interface User {
   createdAt: string;
   _count: {
     amcContracts: number;
+    purchaseOrders: number;
   };
 }
 
@@ -21,6 +22,8 @@ const UserList: React.FC = () => {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -61,6 +64,22 @@ const UserList: React.FC = () => {
     }
   };
 
+    const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.department.toLowerCase().includes(searchTerm.toLowerCase());
+
+    if (filterType === 'all') return matchesSearch;
+    if (filterType === 'admin') return matchesSearch && user.role === 'ADMIN';
+    if (filterType === 'manager') return matchesSearch && user.role === 'MANAGER';
+    if (filterType === 'owner') return matchesSearch && user.role === 'OWNER';
+  
+    
+    return matchesSearch;
+  });
+
   if (!['MANAGER', 'ADMIN'].includes(currentUser?.role || '')) {
     return (
       <div className="text-center py-12">
@@ -70,6 +89,7 @@ const UserList: React.FC = () => {
       </div>
     );
   }
+
 
   if (loading) {
     return <LoadingSpinner />;
@@ -89,8 +109,39 @@ const UserList: React.FC = () => {
         </div>
       </div>
 
+      {/* Search and Filter */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search Users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Filter className="w-4 h-4 text-gray-400" />
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Users</option>
+                <option value="admin">Admin</option>
+                <option value="manager">Manager</option>
+                <option value="owner">Owner</option>
+
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* Users Grid */}
-      {users.length === 0 ? (
+      {filteredUsers.length === 0 ? (
         <div className="text-center py-12">
           <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
@@ -98,7 +149,7 @@ const UserList: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {users.map((user) => (
+          {filteredUsers.map((user) => (
             <div
               key={user.id}
               className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
@@ -183,6 +234,15 @@ const UserList: React.FC = () => {
                     </div>
                     <span className="text-sm font-medium text-gray-900">
                       {user._count.amcContracts ?? 0}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <FileText className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm text-gray-600">Purchase Orders</span>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900">
+                      {user._count.purchaseOrders ?? 0}
                     </span>
                   </div>
 

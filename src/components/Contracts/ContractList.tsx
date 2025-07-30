@@ -131,7 +131,7 @@ const ContractList: React.FC = () => {
     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
       amcType === 'Comprehensive' 
         ? 'bg-blue-100 text-blue-800' 
-        : 'bg-green-100 text-green-800'
+        : 'bg-purple-100 text-purple-800'
     }`}>
       {amcType}
     </span>
@@ -262,14 +262,19 @@ const ContractList: React.FC = () => {
                       </span>
                     )}
                     {isExpiringSoon(contract.amcEnd) && !isExpired(contract.amcEnd) && (
-                      <span className="px-3 py-2 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full text-center">
+                      <span className="px-2 py-2 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full text-center">
                         Expiring Soon
+                      </span>
+                    )}
+                    {!isExpiringSoon(contract.amcEnd) && !isExpired(contract.amcEnd) && (
+                      <span className="px-2 py-2 bg-green-100 text-green-800 text-xs font-medium rounded-full text-center">
+                        Active
                       </span>
                     )}
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                       contract.amcType === 'Comprehensive' 
                         ? 'bg-blue-100 text-blue-800' 
-                        : 'bg-green-100 text-green-800'
+                        : 'bg-purple-100 text-purple-800'
                     }`}>
                       {contract.amcType}
                     </span>
@@ -356,7 +361,7 @@ const ContractList: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  {user?.role === 'MANAGER' && (
+                  {user?.role === 'MANAGER' || user?.role === 'ADMIN' && (
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Owner
                     </th>
@@ -409,7 +414,7 @@ const ContractList: React.FC = () => {
                         {renderTypeBadge(contract.amcType)}
                       </div>
                     </td>
-                    {user?.role === 'MANAGER' && (
+                    {user?.role === 'MANAGER' || user?.role === 'ADMIN' && (
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
                           {contract.owner.name}
